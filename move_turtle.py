@@ -19,17 +19,15 @@ def callback(tpose):
         global current
         current = pos.theta
     rospy.loginfo('initial: %f; current: %f', initialtheta, current)
-    if(abs(current - 3) <0.1):
+    if(abs(current - 3.14) <0.1):
         flag = 1
 def move_turtle():
     global count
     rospy.init_node('move_turtle', anonymous = True)
     rospy.Subscriber("/turtle1/pose", Pose, callback)
-
-    #tpose = Pose()
-    lin_vel = 1.5
-    ang_vel = 1.5
     vel = Twist()
+    global lin_vel
+    global ang_vel
     vel.linear.y = 0
     vel.linear.z = 0
     vel.linear.x = lin_vel
@@ -38,7 +36,7 @@ def move_turtle():
     vel.angular.x = 0
     vel.angular.y = 0
     while not rospy.is_shutdown():
-        if(flag == 1 and abs(round(current,2) - initialtheta) == 0):
+        if(flag == 1 and abs(round(current,3) - initialtheta) < 0.1):
             vel.linear.x = 0
             vel.angular.z = 0
             pub.publish(vel)
@@ -53,7 +51,8 @@ def move_turtle():
 if __name__ == "__main__":
     try:
         pub = rospy.Publisher('/turtle1/cmd_vel', Twist, queue_size = 10)
-
+        lin_vel = float(raw_input('Enter linear velocity: '))
+        ang_vel = float(raw_input('Enter angular velocity: '))
         move_turtle()
     except rospy.ROSInterruptException:
         pass
